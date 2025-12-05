@@ -12,3 +12,4 @@ wheels/
 # Project-specific ignores
 compiled-data/
 logs/
+.vercel
