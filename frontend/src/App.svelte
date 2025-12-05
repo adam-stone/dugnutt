@@ -26,10 +26,22 @@
     "TODD BONZALEZ",
   ]);
 
+  let load_error: Boolean = $state(false);
+
   const refresh_names = async () => {
-    const response = await fetch("/dugnutt?count=22");
-    const data = await response.json();
-    names = data.names;
+    try {
+      load_error = false;
+      const response = await fetch("/api/name?count=22");
+      if (!response.ok) {
+        throw `HTTP ${response.status} ${response.statusText}`;
+      }
+      const data = await response.json();
+      names = data.names;
+    } catch (e) {
+      console.error(`Failed to fetch names: error ${e}`);
+      load_error = true;
+      return;
+    }
   };
 
   onMount(() => {
@@ -41,6 +53,13 @@
   <div class="app">
     <h1>Dugnutt</h1>
     <h2>A Fighting-Baseball-inspired roster generator</h2>
+
+    {#if load_error}
+      <div class="error_bar">
+        A connection error is preventing the app from generating new names right
+        now
+      </div>
+    {/if}
 
     <div id="app-contents">
       {#each names as name}
@@ -79,6 +98,13 @@
 <style>
   @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
+  .error_bar {
+    background-color: #ffaaaa;
+    color: #500000;
+    border-radius: 12px;
+    padding: 16px;
+  }
+
   #app-contents {
     font-family: "Press Start 2P", monospace;
     font-size: 24px;
@@ -94,7 +120,7 @@
 
   .explanation {
     margin-top: 20px;
-    font-size: 1.5em;
+    font-size: 1.25em;
   }
 
   .footer {
