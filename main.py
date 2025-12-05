@@ -7,6 +7,7 @@ from enum import IntEnum
 from typing import Annotated
 
 from fastapi import FastAPI, Query
+from fastapi.staticfiles import StaticFiles
 
 
 # Mutation types must be defined in order of application
@@ -89,12 +90,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/dugnutt")
+@app.get("/api/name")
 async def dugnutt(count: Annotated[int, Query(gt=0, lt=1025)] = 1):
     results = []
     for _ in range(count):
@@ -144,3 +140,6 @@ async def dugnutt(count: Annotated[int, Query(gt=0, lt=1025)] = 1):
                     del output_chars[pos]
         results.append("".join(output_chars))
     return {"names": results}
+
+
+app.mount("/", StaticFiles(directory="frontend/build", html=True), name="frontend")
