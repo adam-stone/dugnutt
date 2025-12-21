@@ -31,7 +31,9 @@
   const refresh_names = async () => {
     try {
       load_error = false;
-      const response = await fetch("/api/name?count=22");
+      const response = await fetch(
+        import.meta.env.VITE_API_URL + "/api/name?count=22",
+      );
       if (!response.ok) {
         throw `HTTP ${response.status} ${response.statusText}`;
       }
@@ -50,7 +52,7 @@
 </script>
 
 <main>
-  <div class="app">
+  <div class="dugnutt-app">
     <h1>Dugnutt</h1>
     <h2>A Fighting-Baseball-inspired roster generator</h2>
 
@@ -61,7 +63,7 @@
       </div>
     {/if}
 
-    <div id="app-contents">
+    <div id="dugnutt-app-contents">
       {#each names as name}
         <div class="player-name">{name}</div>
       {/each}
@@ -84,13 +86,18 @@
         deep analysis
       </a>
       of the names and discovered they were likely created by combining the names
-      of contemporary MLB and NHL players from the early 90s and tweaking them slightly.)
-      This toy simply generates similar-sounding names for your amusement.
+      of MLB and NHL players from the early 90s and tweaking them slightly.) This
+      toy simply generates similar-sounding names for your amusement.
     </div>
 
     <div class="footer">
       <div>Made by <a href="https://straythought.xyz">Adam Stone</a></div>
-      <div>Link to github</div>
+      <div>
+        <a href="https://github.com/adam-stone/dugnutt">
+          <img src="/public/img/github-mark.svg" alt="github" height="20" />
+          <span>Source code</span>
+        </a>
+      </div>
     </div>
   </div>
 </main>
@@ -98,14 +105,14 @@
 <style>
   @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
-  .error_bar {
+  .dugnutt-app .error_bar {
     background-color: #ffaaaa;
     color: #500000;
     border-radius: 12px;
     padding: 16px;
   }
 
-  #app-contents {
+  #dugnutt-app-contents {
     font-family: "Press Start 2P", monospace;
     font-size: 24px;
     margin: 20px;
@@ -114,19 +121,58 @@
     border-radius: 12px;
     color: white;
     text-shadow: 2px 2px 2px black;
-    columns: 2;
-    column-gap: 2rem;
+    min-width: 640px;
   }
 
-  .explanation {
+  @media (min-width: 1024px) {
+    #dugnutt-app-contents {
+      columns: 2;
+      column-gap: 2rem;
+    }
+  }
+
+  .dugnutt-app .explanation {
     margin-top: 20px;
     font-size: 1.25em;
   }
 
-  .footer {
+  .dugnutt-app .footer {
     display: flex;
     justify-content: space-evenly;
+    align-items: center;
     margin-top: 40px;
     font-size: 1em;
+  }
+
+  .dugnutt-app .footer div img,
+  .dugnutt-app .footer div span {
+    margin: 0;
+    display: inline;
+    vertical-align: middle;
+  }
+
+  .dugnutt-app button {
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 600;
+    font-family: inherit;
+    background: linear-gradient(170deg, #c03030 0%, #c08010 100%);
+    color: white;
+    cursor: pointer;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .dugnutt-app button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+
+  .dugnutt-app button:focus,
+  .dugnutt-app button:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
   }
 </style>
