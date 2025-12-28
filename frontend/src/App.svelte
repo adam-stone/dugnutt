@@ -1,5 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { slide } from "svelte/transition";
+  import { flip } from "svelte/animate";
+  import { quadInOut } from "svelte/easing";
 
   let names: string[] = $state([
     "SLEVE MCDICHAEL",
@@ -27,10 +30,16 @@
   ]);
 
   let load_error: Boolean = $state(false);
+  let load_waiting: Boolean = $state(false);
 
   const refresh_names = async () => {
+    const timer = setTimeout(() => {
+      load_waiting = true;
+    }, 500);
+
     try {
       load_error = false;
+
       const response = await fetch(
         import.meta.env.VITE_API_URL + "/api/name?count=22",
       );
@@ -43,6 +52,9 @@
       console.error(`Failed to fetch names: error ${e}`);
       load_error = true;
       return;
+    } finally {
+      clearTimeout(timer);
+      load_waiting = false;
     }
   };
 
@@ -57,46 +69,74 @@
     <h2>A Fighting-Baseball-inspired roster generator</h2>
 
     {#if load_error}
-      <div class="error_bar">
+      <div
+        class="error_bar"
+        transition:slide={{
+          duration: 500,
+          axis: "y",
+          easing: quadInOut,
+        }}
+      >
         A connection error is preventing the app from generating new names right
         now
       </div>
     {/if}
 
-    <div id="dugnutt-app-contents">
-      {#each names as name}
-        <div class="player-name">{name}</div>
-      {/each}
-    </div>
-
-    <button onclick={refresh_names}>Generate New Roster</button>
-
-    <h3>What is this?</h3>
-    <div class="explanation">
-      Dugnutt is a web toy inspired by the rosters from the 1994 Japanese
-      baseball game
-      <a href="https://en.wikipedia.org/wiki/MLBPA_Baseball">
-        Fighting Baseball for the Super NES
-      </a>
-      . In the years since its release, it has become notorious for the mangled English
-      names of the fictional players it features. (One intrepid reddit user did a
-      <a
-        href="https://www.reddit.com/r/baseball/comments/t1xx6g/why_bobson_and_why_dugnutt_a_deep_dive_into_why/"
+    {#if load_waiting}
+      <div
+        transition:slide={{
+          duration: 500,
+          axis: "y",
+          easing: quadInOut,
+        }}
+        class="loading_bar"
       >
-        deep analysis
-      </a>
-      of the names and discovered they were likely created by combining the names
-      of MLB and NHL players from the early 90s and tweaking them slightly.) This
-      toy simply generates similar-sounding names for your amusement.
-    </div>
+        <div class="spinner"></div>
+        <span class="loading_text">
+          Waiting for a response...this can take up to 45 seconds
+        </span>
+      </div>
+    {/if}
 
-    <div class="footer">
-      <div>Made by <a href="https://straythought.xyz">Adam Stone</a></div>
-      <div>
-        <a href="https://github.com/adam-stone/dugnutt">
-          <img src="/public/img/github-mark.svg" alt="github" height="20" />
-          <span>Source code</span>
+    <div class="app-slide-container">
+      <div id="dugnutt-app-contents">
+        {#each names as name}
+          <div class="player-name">{name}</div>
+        {/each}
+      </div>
+
+      <button onclick={refresh_names}>Generate New Roster</button>
+
+      <h3>What is this?</h3>
+      <div class="explanation">
+        Dugnutt is a web toy inspired by the rosters from the 1994 Japanese
+        baseball game
+        <a href="https://en.wikipedia.org/wiki/MLBPA_Baseball">
+          Fighting Baseball for the Super NES
         </a>
+        . In the years since its release, it has become notorious for the mangled
+        English names of the fictional players it features. (One intrepid reddit user
+        did a
+        <a
+          href="https://www.reddit.com/r/baseball/comments/t1xx6g/why_bobson_and_why_dugnutt_a_deep_dive_into_why/"
+        >
+          deep analysis
+        </a>
+        of the names and discovered they were likely created by combining the names
+        of MLB and NHL players from the early 90s and tweaking them slightly.) This
+        toy simply generates similar-sounding names for your amusement.
+      </div>
+
+      <div class="footer">
+        <div>
+          Made by <a href="https://straythought.xyz">Adam Stone</a>
+        </div>
+        <div>
+          <a href="https://github.com/adam-stone/dugnutt">
+            <img src="/public/img/github-mark.svg" alt="github" height="20" />
+            <span>Source code</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -110,6 +150,36 @@
     color: #500000;
     border-radius: 12px;
     padding: 16px;
+  }
+
+  .dugnutt-app .loading_bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background-color: #f7f3a8;
+    color: #8f4a0a;
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .dugnutt-app .loading_bar .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #a2a8b0;
+    border-top-color: #44546b;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .dugnutt-app .app-slide-container {
+    transition: transform 0.5s ease-in-out;
   }
 
   #dugnutt-app-contents {
