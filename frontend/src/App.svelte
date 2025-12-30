@@ -99,10 +99,12 @@
     {/if}
 
     <div class="app-slide-container">
-      <div id="dugnutt-app-contents">
-        {#each names as name}
-          <div class="player-name">{name}</div>
-        {/each}
+      <div class="dugnutt-app-frame">
+        <div id="dugnutt-app-contents">
+          {#each names as name}
+            <div class="player-name">{name}</div>
+          {/each}
+        </div>
       </div>
 
       <button onclick={refresh_names}>Generate New Roster</button>
@@ -182,14 +184,20 @@
     transition: transform 0.5s ease-in-out;
   }
 
-  #dugnutt-app-contents {
-    font-family: "Press Start 2P", monospace;
-    font-size: 24px;
+  .dugnutt-app-frame {
     margin: 20px;
     padding: 20px 10px;
     background-color: #08089a;
     border-radius: 12px;
     color: white;
+    overflow-x: auto;
+  }
+
+  #dugnutt-app-contents {
+    margin: 0;
+    padding: 0;
+    font-family: "Press Start 2P", monospace;
+    font-size: 18px;
     text-shadow: 2px 2px 2px black;
     min-width: 640px;
   }
@@ -201,6 +209,11 @@
     }
   }
 
+  @media (min-width: 512px) {
+    #dugnutt-app-contents {
+      font-size: 24px;
+    }
+  }
   .dugnutt-app .explanation {
     margin-top: 20px;
     font-size: 1.25em;
